@@ -1,0 +1,38 @@
+[envs.default]
+dependencies = [
+  "coverage[toml]>=6.2",
+  "pytest",
+  "pytest-cov",
+  "pytest-mock",
+  "packaging",
+]
+[envs.default.scripts]
+cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=hatch_mypyc --cov=tests"
+no-cov = "cov --no-cov"
+
+[envs.lint]
+skip-install = true
+dependencies = [
+  "flake8~=3.9",
+  "flake8-bugbear~=21.4",
+  "flake8-quotes~=3.2",
+  "black~=21.12b0",
+  "isort~=5.8",
+  "mypy==0.930",
+]
+[envs.lint.scripts]
+typing = "mypy --install-types --non-interactive hatch_mypyc tests"
+style = [
+  "flake8 .",
+  "black --check --diff .",
+  "isort --check-only --diff .",
+]
+fmt = [
+  "isort .",
+  "black .",
+  "style",
+]
+all = [
+  "style",
+  # "typing",
+]

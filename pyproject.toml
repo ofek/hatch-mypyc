@@ -1,0 +1,79 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "hatch-mypyc"
+description = "Hatch build hook plugin for Mypyc"
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+keywords = [
+  "build",
+  "hatch",
+  "mypy",
+  "mypyc",
+  "plugin",
+]
+authors = [
+  { name = "Ofek Lev", email = "oss@ofek.dev" },
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+]
+dependencies = [
+  "hatchling",
+  "mypy~=0.930",
+  "pathspec",
+  "setuptools~=60.1",
+]
+dynamic = ["version"]
+
+[project.urls]
+Documentation = "https://github.com/ofek/hatch-mypyc#readme"
+Issues = "https://github.com/ofek/hatch-mypyc/issues"
+Source = "https://github.com/ofek/hatch-mypyc"
+
+[project.entry-points.hatch]
+mypyc = "hatch_mypyc.hooks"
+
+[tool.hatch.version]
+path = "hatch_mypyc/__about__.py"
+
+[tool.hatch.build.targets.sdist]
+[tool.hatch.build.targets.wheel]
+
+[tool.black]
+include = '\.pyi?$'
+line-length = 120
+skip-string-normalization = true
+target-version = ["py38"]
+
+[tool.isort]
+default_section = "THIRDPARTY"
+force_grid_wrap = 0
+include_trailing_comma = true
+known_first_party = ["hatch_mypyc"]
+line_length = 120
+multi_line_output = 3
+use_parentheses = true
+
+[tool.coverage.run]
+branch = true
+parallel = true
+omit = [
+  "hatch_mypyc/__about__.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
