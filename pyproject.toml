@@ -14,18 +14,21 @@ keywords = [
   "mypy",
   "mypyc",
   "plugin",
+  "typing",
 ]
 authors = [
   { name = "Ofek Lev", email = "oss@ofek.dev" },
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
+  "License :: OSI Approved :: MIT License",
   "Programming Language :: Python",
   "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
+  "Topic :: Software Development :: Build Tools",
 ]
 dependencies = [
   "hatchling",
@@ -37,6 +40,7 @@ dynamic = ["version"]
 
 [project.urls]
 Documentation = "https://github.com/ofek/hatch-mypyc#readme"
+Donate = "https://github.com/sponsors/ofek"
 Issues = "https://github.com/ofek/hatch-mypyc/issues"
 Source = "https://github.com/ofek/hatch-mypyc"
 
@@ -48,6 +52,7 @@ path = "hatch_mypyc/__about__.py"
 
 [tool.hatch.build.targets.sdist]
 [tool.hatch.build.targets.wheel]
+packages = ["hatch_mypyc"]
 
 [tool.black]
 include = '\.pyi?$'

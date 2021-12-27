@@ -24,6 +24,8 @@ def test_no_exclusion(new_project):
     with zipfile.ZipFile(str(wheel_file), 'r') as zip_archive:
         zip_archive.extractall(str(extraction_directory))
 
+    assert len(list(extraction_directory.iterdir())) == 3
+
     metadata_directory = extraction_directory / 'my_app-1.2.3.dist-info'
     assert metadata_directory.is_dir()
 
@@ -40,9 +42,9 @@ def test_no_exclusion(new_project):
     root_files = 0
     fibonacci_files = 0
     for distributed_file in distributed_files:
-        if distributed_file.name.startswith('__init__.'):
+        if distributed_file.name.startswith('__init__'):
             root_files += 1
-        elif distributed_file.name.startswith('fib.'):
+        elif distributed_file.name.startswith('fib'):
             fibonacci_files += 1
 
     assert root_files == 2
@@ -83,6 +85,8 @@ if __name__ == '__main__':
     with zipfile.ZipFile(str(wheel_file), 'r') as zip_archive:
         zip_archive.extractall(str(extraction_directory))
 
+    assert len(list(extraction_directory.iterdir())) == 3
+
     metadata_directory = extraction_directory / 'my_app-1.2.3.dist-info'
     assert metadata_directory.is_dir()
 
@@ -99,13 +103,64 @@ if __name__ == '__main__':
     root_files = 0
     fibonacci_files = 0
     for distributed_file in distributed_files:
-        if distributed_file.name.startswith('__init__.'):
+        if distributed_file.name.startswith('__init__'):
             root_files += 1
-        elif distributed_file.name.startswith('fib.'):
+        elif distributed_file.name.startswith('fib'):
             fibonacci_files += 1
 
     assert root_files == 2
     assert fibonacci_files == 2
+
+
+def test_separation(new_project):
+    project_file = new_project / 'pyproject.toml'
+    contents = project_file.read_text(encoding='utf-8')
+    contents += '\noptions = { separate = true }'
+    project_file.write_text(contents, encoding='utf-8')
+
+    build_project()
+
+    build_dir = new_project / 'dist'
+    assert build_dir.is_dir()
+
+    artifacts = list(build_dir.iterdir())
+    assert len(artifacts) == 1
+    wheel_file = artifacts[0]
+
+    best_matching_tag = next(sys_tags())
+    assert wheel_file.name == f'my_app-1.2.3-{best_matching_tag}.whl'
+
+    extraction_directory = new_project.parent / '_archive'
+    extraction_directory.mkdir()
+
+    with zipfile.ZipFile(str(wheel_file), 'r') as zip_archive:
+        zip_archive.extractall(str(extraction_directory))
+
+    assert len(list(extraction_directory.iterdir())) == 2
+
+    metadata_directory = extraction_directory / 'my_app-1.2.3.dist-info'
+    assert metadata_directory.is_dir()
+
+    wheel_metadata_file = metadata_directory / 'WHEEL'
+    assert wheel_metadata_file.is_file()
+    assert 'Root-Is-Purelib: false' in wheel_metadata_file.read_text(encoding='utf-8')
+
+    extracted_package_dir = extraction_directory / 'my_app'
+    assert extracted_package_dir.is_dir()
+
+    distributed_files = list(extracted_package_dir.iterdir())
+    assert len(distributed_files) == 5
+
+    root_files = 0
+    fibonacci_files = 0
+    for distributed_file in distributed_files:
+        if distributed_file.name.startswith('__init__'):
+            root_files += 1
+        elif distributed_file.name.startswith('fib'):
+            fibonacci_files += 1
+
+    assert root_files == 1
+    assert fibonacci_files == 3
 
 
 def test_target_not_wheel(new_project):

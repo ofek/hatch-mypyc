@@ -34,6 +34,9 @@ dynamic = ["version"]
 [tool.hatch.version]
 path = "my_app/__init__.py"
 
+[tool.hatch.build]
+packages = ["my_app"]
+
 [tool.hatch.build.targets.wheel.hooks.mypyc]
 dependencies = ["hatch-mypyc"]
 include = ["/my_app"]

@@ -2,13 +2,13 @@
 
 | | |
 | --- | --- |
-| CI/CD | [![CI - Test](https://github.com/ofek/hatch-mypyc/actions/workflows/test.yml/badge.svg)](https://github.com/ofek/hatch-mypyc/actions/workflows/test.yml) |
+| CI/CD | [![CI - Test](https://github.com/ofek/hatch-mypyc/actions/workflows/test.yml/badge.svg)](https://github.com/ofek/hatch-mypyc/actions/workflows/test.yml) [![CD - Build](https://github.com/ofek/hatch-mypyc/actions/workflows/build.yml/badge.svg)](https://github.com/ofek/hatch-mypyc/actions/workflows/build.yml) |
 | Package | [![PyPI - Version](https://img.shields.io/pypi/v/hatch-mypyc.svg?logo=pypi&label=PyPI&logoColor=gold)](https://pypi.org/project/hatch-mypyc/) [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/hatch-mypyc.svg?logo=python&label=Python&logoColor=gold)](https://pypi.org/project/hatch-mypyc/) |
 | Meta | [![code style - black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black) [![types - Mypy](https://img.shields.io/badge/types-Mypy-blue.svg)](https://github.com/ambv/black) [![imports - isort](https://img.shields.io/badge/imports-isort-ef8336.svg)](https://github.com/pycqa/isort) [![License - MIT](https://img.shields.io/badge/license-MIT-9400d3.svg)](https://spdx.org/licenses/) [![GitHub Sponsors](https://img.shields.io/github/sponsors/ofek?logo=GitHub%20Sponsors&style=social)](https://github.com/sponsors/ofek) |
 
 -----
 
-This provides a [build hook](https://ofek.dev/hatch/dev/config/build/#build-hooks) plugin for [Hatch](https://github.com/ofek/hatch) that compiles code with [Mypyc](https://github.com/mypyc/mypyc).
+This provides a [build hook](https://ofek.dev/hatch/latest/config/build/#build-hooks) plugin for [Hatch](https://github.com/ofek/hatch) that compiles code with [Mypyc](https://github.com/mypyc/mypyc).
 
 **Table of Contents**
 
@@ -22,7 +22,7 @@ This provides a [build hook](https://ofek.dev/hatch/dev/config/build/#build-hook
 
 ## Configuration
 
-The [build hook plugin](https://ofek.dev/hatch/dev/plugins/build-hook/) name is `mypyc`.
+The [build hook plugin](https://ofek.dev/hatch/latest/plugins/build-hook/) name is `mypyc`.
 
 - ***pyproject.toml***
 
@@ -77,6 +77,8 @@ You can specify `options` that affect the behavior of [mypycify](https://github.
 [build.targets.wheel.hooks.mypyc.options]
 opt_level = "3"
 ```
+
+Note that the `target_dir` option is used internally and therefore has no effect.
 
 ## License
 
