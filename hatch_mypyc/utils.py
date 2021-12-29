@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2021-present Ofek Lev <oss@ofek.dev>
+#
+# SPDX-License-Identifier: MIT
+
+
 def construct_setup_file(*args, **kwargs):
     # Ensure that setuptools is imported first
     contents = """\

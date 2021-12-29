@@ -39,8 +39,8 @@ dependencies = [
 dynamic = ["version"]
 
 [project.urls]
-Documentation = "https://github.com/ofek/hatch-mypyc#readme"
 Donate = "https://github.com/sponsors/ofek"
+History = "https://github.com/ofek/hatch-mypyc/blob/master/HISTORY.md"
 Issues = "https://github.com/ofek/hatch-mypyc/issues"
 Source = "https://github.com/ofek/hatch-mypyc"
 
