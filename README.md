@@ -78,7 +78,10 @@ You can specify `options` that affect the behavior of [mypycify](https://github.
 opt_level = "3"
 ```
 
-Note that the `target_dir` option is used internally and therefore has no effect.
+Note:
+
+- if `separate` is set to `false` (the default), then you'll need to either set [dev-mode-dirs](https://ofek.dev/hatch/latest/config/build/#dev-mode) for builds or disable [dev-mode](https://ofek.dev/hatch/latest/config/environment/#dev-mode) for environments
+- the `target_dir` option is used internally and therefore has no effect
 
 ## License
 
