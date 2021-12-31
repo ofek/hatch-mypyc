@@ -14,8 +14,6 @@ This provides a [build hook](https://ofek.dev/hatch/latest/config/build/#build-h
 
 - [Configuration](#configuration)
   - [File selection](#file-selection)
-    - [Include](#include)
-    - [Exclude](#exclude)
   - [Mypy arguments](#mypy-arguments)
   - [Options](#options)
 - [License](#license)
@@ -40,23 +38,15 @@ The [build hook plugin](https://ofek.dev/hatch/latest/plugins/build-hook/) name 
 
 ### File selection
 
-Every entry represents a [Git-style glob pattern](https://git-scm.com/docs/gitignore#_pattern_format).
-
-#### Include
-
-This option is required.
+By default, the [standard file selection options](https://ofek.dev/hatch/latest/config/build/#file-selection) will be used. You can override this behavior with the `include`/`exclude` options.
 
 ```toml
 [build.targets.wheel.hooks.mypyc]
 include = ["/pkg"]
-```
-
-#### Exclude
-
-```toml
-[build.targets.wheel.hooks.mypyc]
 exclude = ["__main__.py"]
 ```
+
+At least one inclusion pattern must be provided overall.
 
 ### Mypy arguments
 

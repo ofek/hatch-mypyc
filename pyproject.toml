@@ -31,7 +31,7 @@ classifiers = [
   "Topic :: Software Development :: Build Tools",
 ]
 dependencies = [
-  "hatchling",
+  "hatchling>=0.4",
   "mypy~=0.930",
   "pathspec",
   "setuptools~=60.1",

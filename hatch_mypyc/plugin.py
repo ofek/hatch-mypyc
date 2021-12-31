@@ -55,9 +55,6 @@ class MypycBuildHook(BuildHookInterface):
     def config_include(self):
         patterns = self.config.get('include', [])
         if isinstance(patterns, list):
-            if not patterns:
-                raise ValueError(f'Option `include` for build hook `{self.PLUGIN_NAME}` is required')
-
             for i, pattern in enumerate(patterns, 1):
                 if not isinstance(pattern, str):
                     raise TypeError(
@@ -93,21 +90,35 @@ class MypycBuildHook(BuildHookInterface):
         return patterns
 
     @cached_property
+    def package_source(self):
+        for relative_path, _ in self.build_config.packages:
+            source, _ = os.path.split(relative_path[:-1])
+            if source:
+                return source
+        else:
+            return ''
+
+    @cached_property
     def include_spec(self):
-        return pathspec.PathSpec.from_lines(pathspec.patterns.GitWildMatchPattern, self.config_include)
+        if self.config_include:
+            return pathspec.PathSpec.from_lines(pathspec.patterns.GitWildMatchPattern, self.config_include)
+        elif self.build_config.include_spec is not None:
+            return self.build_config.include_spec
+        else:
+            raise ValueError(f'Option `include` for build hook `{self.PLUGIN_NAME}` is required')
 
     @cached_property
     def exclude_spec(self):
-        if not self.config_exclude:
-            return None
+        if self.config_exclude:
+            return pathspec.PathSpec.from_lines(pathspec.patterns.GitWildMatchPattern, self.config_exclude)
 
-        return pathspec.PathSpec.from_lines(pathspec.patterns.GitWildMatchPattern, self.config_exclude)
+        return self.build_config.exclude_spec
 
     def include_path(self, relative_path):
         return self.include_spec.match_file(relative_path) and not self.path_is_excluded(relative_path)
 
     def path_is_excluded(self, relative_path):
-        if self.exclude_spec is None:
+        if self.exclude_spec is None:  # no cov
             return False
 
         return self.exclude_spec.match_file(relative_path)
@@ -161,7 +172,10 @@ class MypycBuildHook(BuildHookInterface):
                 artifact_globs.append(f'{root}__mypyc.*{compiled_extension}')
 
         if not separation:
-            artifact_globs.append(f'*__mypyc.*{compiled_extension}')
+            if self.package_source:
+                artifact_globs.append(f'{self.package_source}{os.path.sep}*__mypyc.*{compiled_extension}')
+            else:
+                artifact_globs.append(f'*__mypyc.*{compiled_extension}')
 
         return artifact_globs
 
@@ -205,7 +219,14 @@ class MypycBuildHook(BuildHookInterface):
 
             setup_file = os.path.join(temp_dir, 'setup.py')
             with open(setup_file, 'w', encoding='utf-8') as f:
-                f.write(construct_setup_file(*self.config_mypy_args, *self.normalized_included_files, **options))
+                f.write(
+                    construct_setup_file(
+                        self.package_source,
+                        *self.config_mypy_args,
+                        *self.normalized_included_files,
+                        **options,
+                    )
+                )
 
             process = subprocess.run(
                 [
