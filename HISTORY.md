@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## 0.3 - 2022-01-02
+
 ***Added:***
 
 - Bump the minimum supported version of Hatchling for a fix for projects with a `src`-layout structure
