@@ -2,11 +2,17 @@
 #
 # SPDX-License-Identifier: MIT
 import os
+import platform
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Generator
 
 import pytest
+
+
+@pytest.fixture(scope='session')
+def compiled_extension() -> str:
+    return '.pyd' if platform.system() == 'Windows' else '.so'
 
 
 @pytest.fixture
@@ -16,12 +22,12 @@ def temp_dir() -> Generator[Path, None, None]:
 
 
 @pytest.fixture
-def new_project(temp_dir):
+def new_project(compiled_extension, temp_dir) -> Generator[Path, None, None]:
     project_dir = temp_dir / 'my-app'
     project_dir.mkdir()
 
     gitignore_file = project_dir / '.gitignore'
-    gitignore_file.write_text('*.so\n*.pyd', encoding='utf-8')
+    gitignore_file.write_text(f'*{compiled_extension}', encoding='utf-8')
 
     project_file = project_dir / 'pyproject.toml'
     project_file.write_text(

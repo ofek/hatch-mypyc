@@ -91,10 +91,9 @@ class MypycBuildHook(BuildHookInterface):
 
     @cached_property
     def package_source(self):
-        for relative_path, _ in self.build_config.packages:
-            source, _ = os.path.split(relative_path[:-1])
-            if source:
-                return source
+        if self.build_config.package_sources:
+            # Just support one source for now
+            return self.build_config.package_sources[0][:-1]
         else:
             return ''
 

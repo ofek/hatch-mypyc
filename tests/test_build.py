@@ -8,7 +8,7 @@ from packaging.tags import sys_tags
 from .utils import build_project
 
 
-def test_no_exclusion(new_project):
+def test_no_exclusion(new_project, compiled_extension):
     build_project()
 
     build_dir = new_project / 'dist'
@@ -27,7 +27,10 @@ def test_no_exclusion(new_project):
     with zipfile.ZipFile(str(wheel_file), 'r') as zip_archive:
         zip_archive.extractall(str(extraction_directory))
 
-    assert len(list(extraction_directory.iterdir())) == 3
+    root_paths = list(extraction_directory.iterdir())
+    assert len(root_paths) == 3
+    assert len([root_path for root_path in root_paths if root_path.name.startswith('my_app')]) == 2
+    assert len([root_path for root_path in root_paths if root_path.name.endswith(compiled_extension)]) == 1
 
     metadata_directory = extraction_directory / 'my_app-1.2.3.dist-info'
     assert metadata_directory.is_dir()
@@ -54,7 +57,7 @@ def test_no_exclusion(new_project):
     assert fibonacci_files == 2
 
 
-def test_exclusion(new_project):
+def test_exclusion(new_project, compiled_extension):
     project_file = new_project / 'pyproject.toml'
     contents = project_file.read_text(encoding='utf-8')
     contents += '\nexclude = ["__main__.py"]'
@@ -88,7 +91,10 @@ if __name__ == '__main__':
     with zipfile.ZipFile(str(wheel_file), 'r') as zip_archive:
         zip_archive.extractall(str(extraction_directory))
 
-    assert len(list(extraction_directory.iterdir())) == 3
+    root_paths = list(extraction_directory.iterdir())
+    assert len(root_paths) == 3
+    assert len([root_path for root_path in root_paths if root_path.name.startswith('my_app')]) == 2
+    assert len([root_path for root_path in root_paths if root_path.name.endswith(compiled_extension)]) == 1
 
     metadata_directory = extraction_directory / 'my_app-1.2.3.dist-info'
     assert metadata_directory.is_dir()
@@ -139,7 +145,9 @@ def test_separation(new_project):
     with zipfile.ZipFile(str(wheel_file), 'r') as zip_archive:
         zip_archive.extractall(str(extraction_directory))
 
-    assert len(list(extraction_directory.iterdir())) == 2
+    root_paths = list(extraction_directory.iterdir())
+    assert len(root_paths) == 2
+    assert len([root_path for root_path in root_paths if root_path.name.startswith('my_app')]) == 2
 
     metadata_directory = extraction_directory / 'my_app-1.2.3.dist-info'
     assert metadata_directory.is_dir()
@@ -166,7 +174,7 @@ def test_separation(new_project):
     assert fibonacci_files == 3
 
 
-def test_src_layout(new_project):
+def test_src_layout(new_project, compiled_extension):
     project_file = new_project / 'pyproject.toml'
     contents = project_file.read_text(encoding='utf-8')
     contents = contents.replace('my_app', 'src/my_app')
@@ -194,7 +202,10 @@ def test_src_layout(new_project):
     with zipfile.ZipFile(str(wheel_file), 'r') as zip_archive:
         zip_archive.extractall(str(extraction_directory))
 
-    assert len(list(extraction_directory.iterdir())) == 3
+    root_paths = list(extraction_directory.iterdir())
+    assert len(root_paths) == 3
+    assert len([root_path for root_path in root_paths if root_path.name.startswith('my_app')]) == 2
+    assert len([root_path for root_path in root_paths if root_path.name.endswith(compiled_extension)]) == 1
 
     metadata_directory = extraction_directory / 'my_app-1.2.3.dist-info'
     assert metadata_directory.is_dir()
