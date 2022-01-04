@@ -35,11 +35,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Install Hatch
-      run: pip install --upgrade --pre --ignore-requires-python hatch
-
-    - if: matrix.python-version == '3.9' && runner.os == 'Linux'
-      name: Lint
-      run: hatch run lint:all
+      run: pip install --upgrade pytest packaging
 
     - name: Run tests
-      run: hatch run cov
+      run: pytest
