@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Added:***
+
+- Support Python 3.7
+
 ## 0.3 - 2022-01-02
 
 ***Added:***
