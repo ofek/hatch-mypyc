@@ -7,7 +7,6 @@ import os
 import platform
 import subprocess
 import sys
-from functools import cached_property
 from tempfile import TemporaryDirectory
 
 import pathspec
@@ -22,96 +21,134 @@ class MypycBuildHook(BuildHookInterface):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.__config_mypy_args = None
+        self.__config_options = None
+        self.__config_include = None
+        self.__config_exclude = None
+        self.__package_source = None
+        self.__include_spec = None
+        self.__exclude_spec = None
+        self.__included_files = None
+        self.__normalized_included_files = None
+        self.__artifact_globs = None
+        self.__normalized_artifact_globs = None
+        self.__artifact_patterns = None
+
         self._on_windows = platform.system() == 'Windows'
 
-    @cached_property
+    @property
     def config_mypy_args(self):
-        mypy_args = self.config.get('mypy-args', [])
-        if isinstance(mypy_args, list):
-            for i, argument in enumerate(mypy_args, 1):
-                if not isinstance(argument, str):
-                    raise TypeError(
-                        f'Argument #{i} of option `mypy-args` for build hook `{self.PLUGIN_NAME}` must be a string'
-                    )
-                elif not argument:
-                    raise ValueError(
-                        f'Argument #{i} of option `mypy-args` for build hook `{self.PLUGIN_NAME}` '
-                        f'cannot be an empty string'
-                    )
-        else:
-            raise TypeError(f'Option `mypy-args` for build hook `{self.PLUGIN_NAME}` must be an array')
+        if self.__config_mypy_args is None:
+            mypy_args = self.config.get('mypy-args', [])
+            if isinstance(mypy_args, list):
+                for i, argument in enumerate(mypy_args, 1):
+                    if not isinstance(argument, str):
+                        raise TypeError(
+                            f'Argument #{i} of option `mypy-args` for build hook `{self.PLUGIN_NAME}` must be a string'
+                        )
+                    elif not argument:
+                        raise ValueError(
+                            f'Argument #{i} of option `mypy-args` for build hook `{self.PLUGIN_NAME}` '
+                            f'cannot be an empty string'
+                        )
+            else:
+                raise TypeError(f'Option `mypy-args` for build hook `{self.PLUGIN_NAME}` must be an array')
 
-        return mypy_args
+            self.__config_mypy_args = mypy_args
 
-    @cached_property
+        return self.__config_mypy_args
+
+    @property
     def config_options(self):
-        options = self.config.get('options', {})
-        if not isinstance(options, dict):
-            raise TypeError(f'Option `options` for build hook `{self.PLUGIN_NAME}` must be a table')
+        if self.__config_options is None:
+            options = self.config.get('options', {})
+            if not isinstance(options, dict):
+                raise TypeError(f'Option `options` for build hook `{self.PLUGIN_NAME}` must be a table')
 
-        return options
+            self.__config_options = options
 
-    @cached_property
+        return self.__config_options
+
+    @property
     def config_include(self):
-        patterns = self.config.get('include', [])
-        if isinstance(patterns, list):
-            for i, pattern in enumerate(patterns, 1):
-                if not isinstance(pattern, str):
-                    raise TypeError(
-                        f'Pattern #{i} of option `include` for build hook `{self.PLUGIN_NAME}` must be a string'
-                    )
-                elif not pattern:
-                    raise ValueError(
-                        f'Pattern #{i} of option `include` for build hook `{self.PLUGIN_NAME}` '
-                        f'cannot be an empty string'
-                    )
-        else:
-            raise TypeError(f'Option `include` for build hook `{self.PLUGIN_NAME}` must be an array')
+        if self.__config_include is None:
+            patterns = self.config.get('include', [])
+            if isinstance(patterns, list):
+                for i, pattern in enumerate(patterns, 1):
+                    if not isinstance(pattern, str):
+                        raise TypeError(
+                            f'Pattern #{i} of option `include` for build hook `{self.PLUGIN_NAME}` must be a string'
+                        )
+                    elif not pattern:
+                        raise ValueError(
+                            f'Pattern #{i} of option `include` for build hook `{self.PLUGIN_NAME}` '
+                            f'cannot be an empty string'
+                        )
+            else:
+                raise TypeError(f'Option `include` for build hook `{self.PLUGIN_NAME}` must be an array')
 
-        return patterns
+            self.__config_include = patterns
 
-    @cached_property
+        return self.__config_include
+
+    @property
     def config_exclude(self):
-        patterns = self.config.get('exclude', [])
-        if isinstance(patterns, list):
-            for i, pattern in enumerate(patterns, 1):
-                if not isinstance(pattern, str):
-                    raise TypeError(
-                        f'Pattern #{i} of option `exclude` for build hook `{self.PLUGIN_NAME}` must be a string'
-                    )
-                elif not pattern:
-                    raise ValueError(
-                        f'Pattern #{i} of option `exclude` for build hook `{self.PLUGIN_NAME}` '
-                        f'cannot be an empty string'
-                    )
-        else:
-            raise TypeError(f'Option `exclude` for build hook `{self.PLUGIN_NAME}` must be an array')
+        if self.__config_exclude is None:
+            patterns = self.config.get('exclude', [])
+            if isinstance(patterns, list):
+                for i, pattern in enumerate(patterns, 1):
+                    if not isinstance(pattern, str):
+                        raise TypeError(
+                            f'Pattern #{i} of option `exclude` for build hook `{self.PLUGIN_NAME}` must be a string'
+                        )
+                    elif not pattern:
+                        raise ValueError(
+                            f'Pattern #{i} of option `exclude` for build hook `{self.PLUGIN_NAME}` '
+                            f'cannot be an empty string'
+                        )
+            else:
+                raise TypeError(f'Option `exclude` for build hook `{self.PLUGIN_NAME}` must be an array')
 
-        return patterns
+            self.__config_exclude = patterns
 
-    @cached_property
+        return self.__config_exclude
+
+    @property
     def package_source(self):
-        if self.build_config.package_sources:
-            # Just support one source for now
-            return self.build_config.package_sources[0][:-1]
-        else:
-            return ''
+        if self.__package_source is None:
+            if self.build_config.package_sources:
+                # Just support one source for now
+                self.__package_source = self.build_config.package_sources[0][:-1]
+            else:
+                self.__package_source = ''
 
-    @cached_property
+        return self.__package_source
+
+    @property
     def include_spec(self):
-        if self.config_include:
-            return pathspec.PathSpec.from_lines(pathspec.patterns.GitWildMatchPattern, self.config_include)
-        elif self.build_config.include_spec is not None:
-            return self.build_config.include_spec
-        else:
-            raise ValueError(f'Option `include` for build hook `{self.PLUGIN_NAME}` is required')
+        if self.__include_spec is None:
+            if self.config_include:
+                self.__include_spec = pathspec.PathSpec.from_lines(
+                    pathspec.patterns.GitWildMatchPattern, self.config_include
+                )
+            elif self.build_config.include_spec is not None:
+                self.__include_spec = self.build_config.include_spec
+            else:
+                raise ValueError(f'Option `include` for build hook `{self.PLUGIN_NAME}` is required')
 
-    @cached_property
+        return self.__include_spec
+
+    @property
     def exclude_spec(self):
-        if self.config_exclude:
-            return pathspec.PathSpec.from_lines(pathspec.patterns.GitWildMatchPattern, self.config_exclude)
+        if self.__exclude_spec is None:
+            if self.config_exclude:
+                self.__exclude_spec = pathspec.PathSpec.from_lines(
+                    pathspec.patterns.GitWildMatchPattern, self.config_exclude
+                )
+            else:
+                self.__exclude_spec = self.build_config.exclude_spec
 
-        return self.build_config.exclude_spec
+        return self.__exclude_spec
 
     def include_path(self, relative_path):
         return self.include_spec.match_file(relative_path) and not self.path_is_excluded(relative_path)
@@ -122,73 +159,88 @@ class MypycBuildHook(BuildHookInterface):
 
         return self.exclude_spec.match_file(relative_path)
 
-    @cached_property
+    @property
     def included_files(self):
-        included_files = []
+        if self.__included_files is None:
+            included_files = []
 
-        for root, dirs, files in os.walk(self.root):
-            relative_path = os.path.relpath(root, self.root)
+            for root, dirs, files in os.walk(self.root):
+                relative_path = os.path.relpath(root, self.root)
 
-            # First iteration
-            if relative_path == '.':
-                relative_path = ''
+                # First iteration
+                if relative_path == '.':
+                    relative_path = ''
 
-            dirs[:] = sorted(
-                d
-                for d in dirs
-                # The trailing slash is necessary so e.g. `bar/` matches `foo/bar`
-                if not self.path_is_excluded('{}/'.format(os.path.join(relative_path, d)))
-            )
+                dirs[:] = sorted(
+                    d
+                    for d in dirs
+                    # The trailing slash is necessary so e.g. `bar/` matches `foo/bar`
+                    if not self.path_is_excluded('{}/'.format(os.path.join(relative_path, d)))
+                )
 
-            for f in sorted(files):
-                if not f.endswith('.py'):
-                    continue
+                for f in sorted(files):
+                    if not f.endswith('.py'):
+                        continue
 
-                relative_file_path = os.path.join(relative_path, f)
-                if self.include_path(relative_file_path):
-                    included_files.append(relative_file_path)
+                    relative_file_path = os.path.join(relative_path, f)
+                    if self.include_path(relative_file_path):
+                        included_files.append(relative_file_path)
 
-        return included_files
+            self.__included_files = included_files
 
-    @cached_property
+        return self.__included_files
+
+    @property
     def normalized_included_files(self):
-        if self._on_windows:
-            return [f.replace('\\', '/') for f in self.included_files]
-
-        return self.included_files
-
-    @cached_property
-    def artifact_globs(self):
-        artifact_globs = []
-        separation = self.config_options.get('separate', False) is not False
-        compiled_extension = '.pyd' if self._on_windows else '.so'
-
-        for included_file in self.included_files:
-            root, _ = os.path.splitext(included_file)
-            artifact_globs.append(f'{root}.*{compiled_extension}')
-
-            if separation:
-                artifact_globs.append(f'{root}__mypyc.*{compiled_extension}')
-
-        if not separation:
-            if self.package_source:
-                artifact_globs.append(f'{self.package_source}{os.path.sep}*__mypyc.*{compiled_extension}')
+        if self.__normalized_included_files is None:
+            if self._on_windows:
+                self.__normalized_included_files = [f.replace('\\', '/') for f in self.included_files]
             else:
-                artifact_globs.append(f'*__mypyc.*{compiled_extension}')
+                self.__normalized_included_files = self.included_files
 
-        return artifact_globs
+        return self.__normalized_included_files
 
-    @cached_property
+    @property
+    def artifact_globs(self):
+        if self.__artifact_globs is None:
+            artifact_globs = []
+            separation = self.config_options.get('separate', False) is not False
+            compiled_extension = '.pyd' if self._on_windows else '.so'
+
+            for included_file in self.included_files:
+                root, _ = os.path.splitext(included_file)
+                artifact_globs.append(f'{root}.*{compiled_extension}')
+
+                if separation:
+                    artifact_globs.append(f'{root}__mypyc.*{compiled_extension}')
+
+            if not separation:
+                if self.package_source:
+                    artifact_globs.append(f'{self.package_source}{os.path.sep}*__mypyc.*{compiled_extension}')
+                else:
+                    artifact_globs.append(f'*__mypyc.*{compiled_extension}')
+
+            self.__artifact_globs = artifact_globs
+
+        return self.__artifact_globs
+
+    @property
     def normalized_artifact_globs(self):
-        if self._on_windows:
-            return [f.replace('\\', '/') for f in self.artifact_globs]
+        if self.__normalized_artifact_globs is None:
+            if self._on_windows:
+                self.__normalized_artifact_globs = [f.replace('\\', '/') for f in self.artifact_globs]
+            else:
+                self.__normalized_artifact_globs = self.artifact_globs
 
-        return self.artifact_globs
+        return self.__normalized_artifact_globs
 
-    @cached_property
+    @property
     def artifact_patterns(self):
-        # Match the exact path starting at the project root
-        return [f'/{artifact_glob}' for artifact_glob in self.normalized_artifact_globs]
+        if self.__artifact_patterns is None:
+            # Match the exact path starting at the project root
+            self.__artifact_patterns = [f'/{artifact_glob}' for artifact_glob in self.normalized_artifact_globs]
+
+        return self.__artifact_patterns
 
     def clean(self, versions):
         from glob import iglob

@@ -221,3 +221,21 @@ class TestPackageSource:
         build_hook = MypycBuildHook(str(new_project), config, build_config, str(build_dir), 'wheel')
 
         assert build_hook.package_source == 'src'
+
+
+def test_coverage(new_project):
+    build_config = BuilderConfig(str(new_project), 'wheel', {}, {'include': ['foo']}, None, None)
+    build_hook = MypycBuildHook(str(new_project), {}, build_config, str(new_project / 'dist'), 'wheel')
+
+    assert build_hook.config_mypy_args is build_hook.config_mypy_args
+    assert build_hook.config_options is build_hook.config_options
+    assert build_hook.config_include is build_hook.config_include
+    assert build_hook.config_exclude is build_hook.config_exclude
+    assert build_hook.package_source is build_hook.package_source
+    assert build_hook.include_spec is build_hook.include_spec
+    assert build_hook.exclude_spec is build_hook.exclude_spec
+    assert build_hook.included_files is build_hook.included_files
+    assert build_hook.normalized_included_files is build_hook.normalized_included_files
+    assert build_hook.artifact_globs is build_hook.artifact_globs
+    assert build_hook.normalized_artifact_globs is build_hook.normalized_artifact_globs
+    assert build_hook.artifact_patterns is build_hook.artifact_patterns
