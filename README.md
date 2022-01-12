@@ -16,6 +16,7 @@ This provides a [build hook](https://ofek.dev/hatch/latest/config/build/#build-h
   - [File selection](#file-selection)
   - [Mypy arguments](#mypy-arguments)
   - [Options](#options)
+- [Missing types](#missing-types)
 - [License](#license)
 
 ## Configuration
@@ -72,6 +73,10 @@ Note:
 
 - if `separate` is set to `false` (the default), then you'll need to either set [dev-mode-dirs](https://ofek.dev/hatch/latest/config/build/#dev-mode) for builds or disable [dev-mode](https://ofek.dev/hatch/latest/config/environment/#dev-mode) for environments
 - the `target_dir` option is used internally and therefore has no effect
+
+## Missing types
+
+If you need more packages at build time in order to successfully type check, add them to the `dependencies` option where you [configured the plugin](#configuration).
 
 ## License
 
