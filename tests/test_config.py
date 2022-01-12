@@ -136,7 +136,7 @@ class TestPatternMatching:
         build_dir = new_project / 'dist'
         config = {}
         target_config = {}
-        build_config = BuilderConfig(str(new_project), 'wheel', {}, target_config, None, None)
+        build_config = BuilderConfig(None, str(new_project), 'wheel', {}, target_config)
         build_hook = MypycBuildHook(str(new_project), config, build_config, str(build_dir), 'wheel')
 
         with pytest.raises(ValueError, match='Option `include` for build hook `mypyc` is required'):
@@ -146,7 +146,7 @@ class TestPatternMatching:
         build_dir = new_project / 'dist'
         config = {}
         target_config = {'include': ['foo']}
-        build_config = BuilderConfig(str(new_project), 'wheel', {}, target_config, None, None)
+        build_config = BuilderConfig(None, str(new_project), 'wheel', {}, target_config)
         build_hook = MypycBuildHook(str(new_project), config, build_config, str(build_dir), 'wheel')
 
         assert build_hook.include_path('foo/bar.py')
@@ -158,7 +158,7 @@ class TestPatternMatching:
         build_dir = new_project / 'dist'
         config = {}
         target_config = {'packages': ['foo']}
-        build_config = BuilderConfig(str(new_project), 'wheel', {}, target_config, None, None)
+        build_config = BuilderConfig(None, str(new_project), 'wheel', {}, target_config)
         build_hook = MypycBuildHook(str(new_project), config, build_config, str(build_dir), 'wheel')
 
         assert build_hook.include_path('foo/bar.py')
@@ -170,7 +170,7 @@ class TestPatternMatching:
         build_dir = new_project / 'dist'
         config = {'include': ['bar']}
         target_config = {'include': ['foo']}
-        build_config = BuilderConfig(str(new_project), 'wheel', {}, target_config, None, None)
+        build_config = BuilderConfig(None, str(new_project), 'wheel', {}, target_config)
         build_hook = MypycBuildHook(str(new_project), config, build_config, str(build_dir), 'wheel')
 
         assert not build_hook.include_path('foo/bar.py')
@@ -182,7 +182,7 @@ class TestPatternMatching:
         build_dir = new_project / 'dist'
         config = {'include': ['bar']}
         target_config = {'include': ['foo'], 'exclude': ['foo.py']}
-        build_config = BuilderConfig(str(new_project), 'wheel', {}, target_config, None, None)
+        build_config = BuilderConfig(None, str(new_project), 'wheel', {}, target_config)
         build_hook = MypycBuildHook(str(new_project), config, build_config, str(build_dir), 'wheel')
 
         assert not build_hook.include_path('foo/bar.py')
@@ -194,7 +194,7 @@ class TestPatternMatching:
         build_dir = new_project / 'dist'
         config = {'include': ['bar'], 'exclude': ['baz.py']}
         target_config = {'include': ['foo'], 'exclude': ['foo.py']}
-        build_config = BuilderConfig(str(new_project), 'wheel', {}, target_config, None, None)
+        build_config = BuilderConfig(None, str(new_project), 'wheel', {}, target_config)
         build_hook = MypycBuildHook(str(new_project), config, build_config, str(build_dir), 'wheel')
 
         assert not build_hook.include_path('foo/bar.py')
@@ -208,7 +208,7 @@ class TestPackageSource:
         build_dir = new_project / 'dist'
         config = {}
         target_config = {'packages': ['foo']}
-        build_config = BuilderConfig(str(new_project), 'wheel', {}, target_config, None, None)
+        build_config = BuilderConfig(None, str(new_project), 'wheel', {}, target_config)
         build_hook = MypycBuildHook(str(new_project), config, build_config, str(build_dir), 'wheel')
 
         assert build_hook.package_source == ''
@@ -217,14 +217,14 @@ class TestPackageSource:
         build_dir = new_project / 'dist'
         config = {}
         target_config = {'packages': ['src/foo']}
-        build_config = BuilderConfig(str(new_project), 'wheel', {}, target_config, None, None)
+        build_config = BuilderConfig(None, str(new_project), 'wheel', {}, target_config)
         build_hook = MypycBuildHook(str(new_project), config, build_config, str(build_dir), 'wheel')
 
         assert build_hook.package_source == 'src'
 
 
 def test_coverage(new_project):
-    build_config = BuilderConfig(str(new_project), 'wheel', {}, {'include': ['foo']}, None, None)
+    build_config = BuilderConfig(None, str(new_project), 'wheel', {}, {'include': ['foo']})
     build_hook = MypycBuildHook(str(new_project), {}, build_config, str(new_project / 'dist'), 'wheel')
 
     assert build_hook.config_mypy_args is build_hook.config_mypy_args
