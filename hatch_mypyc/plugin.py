@@ -12,7 +12,7 @@ from tempfile import TemporaryDirectory
 import pathspec
 from hatchling.builders.hooks.plugin.interface import BuildHookInterface
 
-from .utils import construct_setup_file
+from .utils import construct_setup_file, patch_mypy_prefix_module_discovery
 
 
 class MypycBuildHook(BuildHookInterface):
@@ -268,15 +268,18 @@ class MypycBuildHook(BuildHookInterface):
             options = self.config_options.copy()
             options['target_dir'] = shared_temp_build_dir
 
+            # Only applies when building with pip
+            mypy_installed_in_prefix = patch_mypy_prefix_module_discovery()
+
+            mypy_args = list(self.config_mypy_args)
+            # Prevent horribly breaking users' global environments
+            if mypy_installed_in_prefix and '--install-types' in mypy_args:
+                mypy_args.remove('--install-types')
+
             setup_file = os.path.join(temp_dir, 'setup.py')
             with open(setup_file, 'w', encoding='utf-8') as f:
                 f.write(
-                    construct_setup_file(
-                        self.package_source,
-                        *self.config_mypy_args,
-                        *self.normalized_included_files,
-                        **options,
-                    )
+                    construct_setup_file(self.package_source, *mypy_args, *self.normalized_included_files, **options)
                 )
 
             process = subprocess.run(
