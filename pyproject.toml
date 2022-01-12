@@ -32,10 +32,10 @@ classifiers = [
   "Topic :: Software Development :: Build Tools",
 ]
 dependencies = [
-  "hatchling>=0.5",
-  "mypy~=0.930",
+  "hatchling>=0.8",
+  "mypy~=0.931",
   "pathspec",
-  "setuptools~=60.1",
+  "setuptools~=60.5",
 ]
 dynamic = ["version"]
 
@@ -59,7 +59,7 @@ packages = ["hatch_mypyc"]
 include = '\.pyi?$'
 line-length = 120
 skip-string-normalization = true
-target-version = ["py38"]
+target-version = ["py37"]
 
 [tool.isort]
 default_section = "THIRDPARTY"
