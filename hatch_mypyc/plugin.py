@@ -207,6 +207,7 @@ class MypycBuildHook(BuildHookInterface):
             separation = self.config_options.get('separate', False) is not False
             compiled_extension = '.pyd' if self._on_windows else '.so'
 
+            # TODO: investigate using more specific patterns to avoid having to clean everything before each run
             for included_file in self.included_files:
                 root, _ = os.path.splitext(included_file)
                 artifact_globs.append(f'{root}.*{compiled_extension}')
@@ -281,6 +282,10 @@ class MypycBuildHook(BuildHookInterface):
                 f.write(
                     construct_setup_file(self.package_source, *mypy_args, *self.normalized_included_files, **options)
                 )
+
+            # We don't know the exact naming scheme of the files produced using this interpreter,
+            # so always clean to prevent including files from other runs
+            self.clean([version])
 
             process = subprocess.run(
                 [
