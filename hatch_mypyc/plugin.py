@@ -306,5 +306,5 @@ class MypycBuildHook(BuildHookInterface):
 
         # Success, now finalize build data
         build_data['infer_tag'] = True
-        build_data['zip_safe'] = False
+        build_data['pure_python'] = False
         build_data['artifacts'].extend(self.artifact_patterns)
