@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling>=0.19.0"]
 build-backend = "hatchling.build"
 
 [project]
@@ -32,7 +32,7 @@ classifiers = [
   "Topic :: Software Development :: Build Tools",
 ]
 dependencies = [
-  "hatchling>=0.11.3",
+  "hatchling>=0.19.0",
   "mypy~=0.931",
   "pathspec",
   "setuptools>=60.5.0",
@@ -50,10 +50,6 @@ mypyc = "hatch_mypyc.hooks"
 
 [tool.hatch.version]
 path = "hatch_mypyc/__about__.py"
-
-[tool.hatch.build.targets.sdist]
-[tool.hatch.build.targets.wheel]
-packages = ["hatch_mypyc"]
 
 [tool.black]
 include = '\.pyi?$'

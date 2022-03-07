@@ -116,12 +116,9 @@ class MypycBuildHook(BuildHookInterface):
     @property
     def package_source(self):
         if self.__package_source is None:
-            if getattr(self.build_config, 'sources', {}):
+            if self.build_config.sources:
                 # Just support one source for now
                 self.__package_source = list(self.build_config.sources)[0][:-1]
-            # Legacy attribute
-            elif getattr(self.build_config, 'package_sources', []):
-                self.__package_source = self.build_config.package_sources[0][:-1]
             else:
                 self.__package_source = ''
 
