@@ -76,7 +76,10 @@ Note:
 
 ## Missing types
 
-If you need more packages at build time in order to successfully type check, add them to the `dependencies` option where you [configured the plugin](#configuration).
+If you need more packages at build time in order to successfully type check, you can use the following options where you [configured the plugin](#configuration):
+
+- `dependencies` - add more dependencies alongside `hatch-mypyc`
+- `require-runtime-dependencies` - set to `true` to include dependencies defined in the `project.dependencies` array
 
 ## License
 
