@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## 0.9.1 - 2022-03-25
+
 ***Fixed:***
 
 - Cap the version of setuptools until it supports PEP 639
