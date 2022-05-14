@@ -8,7 +8,7 @@
 
 -----
 
-This provides a [build hook](https://ofek.dev/hatch/latest/config/build/#build-hooks) plugin for [Hatch](https://github.com/ofek/hatch) that compiles code with [Mypyc](https://github.com/mypyc/mypyc).
+This provides a [build hook](https://hatch.pypa.io/latest/config/build/#build-hooks) plugin for [Hatch](https://github.com/pypa/hatch) that compiles code with [Mypyc](https://github.com/mypyc/mypyc).
 
 **Table of Contents**
 
@@ -21,7 +21,7 @@ This provides a [build hook](https://ofek.dev/hatch/latest/config/build/#build-h
 
 ## Configuration
 
-The [build hook plugin](https://ofek.dev/hatch/latest/plugins/build-hook/) name is `mypyc`.
+The [build hook plugin](https://hatch.pypa.io/latest/plugins/build-hook/) name is `mypyc`.
 
 - ***pyproject.toml***
 
@@ -39,7 +39,7 @@ The [build hook plugin](https://ofek.dev/hatch/latest/plugins/build-hook/) name 
 
 ### File selection
 
-By default, the [standard file selection options](https://ofek.dev/hatch/latest/config/build/#file-selection) will be used. You can override this behavior with the `include`/`exclude` options.
+By default, the [standard file selection options](https://hatch.pypa.io/latest/config/build/#file-selection) will be used. You can override this behavior with the `include`/`exclude` options.
 
 ```toml
 [build.targets.wheel.hooks.mypyc]
