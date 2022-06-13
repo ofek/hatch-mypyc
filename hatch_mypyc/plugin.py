@@ -7,6 +7,7 @@ import os
 import platform
 import subprocess
 import sys
+from contextlib import contextmanager
 from tempfile import TemporaryDirectory
 
 import pathspec
@@ -251,12 +252,24 @@ class MypycBuildHook(BuildHookInterface):
             for artifact in iglob(absolute_glob):
                 os.remove(artifact)
 
+    @contextmanager
+    def hide_project_file(self):
+        # TODO: remove this and bump setuptools when it supports PEP 639
+        project_file = os.path.join(self.root, 'pyproject.toml')
+        project_file_backup = os.path.join(self.root, 'pyproject.toml.bak')
+
+        os.replace(project_file, project_file_backup)
+        try:
+            yield
+        finally:
+            os.replace(project_file_backup, project_file)
+
     def initialize(self, version, build_data):
         if self.target_name != 'wheel':
             return
 
         # Hopefully there will be an API for this soon:
-        # https://github.com/python/mypy/blob/v0.930/mypyc/__main__.py
+        # https://github.com/python/mypy/blob/v0.961/mypyc/__main__.py
         with TemporaryDirectory() as temp_dir:
             temp_dir = os.path.realpath(temp_dir)
 
@@ -287,20 +300,21 @@ class MypycBuildHook(BuildHookInterface):
             # so always clean to prevent including files from other runs
             self.clean([version])
 
-            process = subprocess.run(
-                [
-                    sys.executable,
-                    setup_file,
-                    'build_ext',
-                    '--inplace',
-                    '--build-lib',
-                    shared_temp_build_dir,
-                    '--build-temp',
-                    temp_build_dir,
-                ],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-            )
+            with self.hide_project_file():
+                process = subprocess.run(
+                    [
+                        sys.executable,
+                        setup_file,
+                        'build_ext',
+                        '--inplace',
+                        '--build-lib',
+                        shared_temp_build_dir,
+                        '--build-temp',
+                        temp_build_dir,
+                    ],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                )
             if process.returncode:  # no cov
                 raise Exception(f'Error while invoking Mypyc:\n{process.stdout.decode("utf-8")}')
 
