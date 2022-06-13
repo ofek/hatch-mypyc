@@ -8,6 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Added:***
+
+- Bump the minimum supported version of dependencies
+
+***Fixed:***
+
+- Properly work around setuptools' lack of support for PEP 639
+
 ## 0.9.1 - 2022-03-25
 
 ***Fixed:***
