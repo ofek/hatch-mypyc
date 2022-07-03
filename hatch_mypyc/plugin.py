@@ -24,6 +24,7 @@ class MypycBuildHook(BuildHookInterface):
 
         self.__config_mypy_args = None
         self.__config_options = None
+        self.__config_separation = None
         self.__config_include = None
         self.__config_exclude = None
         self.__package_source = None
@@ -36,6 +37,11 @@ class MypycBuildHook(BuildHookInterface):
         self.__artifact_patterns = None
 
         self._on_windows = platform.system() == 'Windows'
+        self.__compiled_extension = '.pyd' if self._on_windows else '.so'
+
+    @property
+    def compiled_extension(self):
+        return self.__compiled_extension
 
     @property
     def config_mypy_args(self):
@@ -69,6 +75,13 @@ class MypycBuildHook(BuildHookInterface):
             self.__config_options = options
 
         return self.__config_options
+
+    @property
+    def config_separation(self):
+        if self.__config_separation is None:
+            self.__config_separation = self.config_options.get('separate', False) is not False
+
+        return self.__config_separation
 
     @property
     def config_include(self):
@@ -205,22 +218,14 @@ class MypycBuildHook(BuildHookInterface):
     def artifact_globs(self):
         if self.__artifact_globs is None:
             artifact_globs = []
-            separation = self.config_options.get('separate', False) is not False
-            compiled_extension = '.pyd' if self._on_windows else '.so'
 
             # TODO: investigate using more specific patterns to avoid having to clean everything before each run
             for included_file in self.included_files:
                 root, _ = os.path.splitext(included_file)
-                artifact_globs.append(f'{root}.*{compiled_extension}')
+                artifact_globs.append(f'{root}.*{self.compiled_extension}')
 
-                if separation:
-                    artifact_globs.append(f'{root}__mypyc.*{compiled_extension}')
-
-            if not separation:
-                if self.package_source:
-                    artifact_globs.append(f'{self.package_source}{os.path.sep}*__mypyc.*{compiled_extension}')
-                else:
-                    artifact_globs.append(f'*__mypyc.*{compiled_extension}')
+                if self.config_separation:
+                    artifact_globs.append(f'{root}__mypyc.*{self.compiled_extension}')
 
             self.__artifact_globs = artifact_globs
 
@@ -244,8 +249,25 @@ class MypycBuildHook(BuildHookInterface):
 
         return self.__artifact_patterns
 
+    def get_forced_inclusion_map(self):
+        inclusion_map = {}
+        if not self.config_separation:
+            from glob import iglob
+
+            pattern = f'*__mypyc.*{self.compiled_extension}'
+            if self.package_source:
+                pattern = os.path.join(self.package_source, pattern)
+
+            for path in iglob(pattern):
+                inclusion_map[path] = os.path.relpath(path, self.root)
+
+        return inclusion_map
+
     def clean(self, versions):
         from glob import iglob
+
+        for path in self.get_forced_inclusion_map():
+            os.remove(path)
 
         for artifact_glob in self.artifact_globs:
             absolute_glob = os.path.join(self.root, artifact_glob)
@@ -287,7 +309,7 @@ class MypycBuildHook(BuildHookInterface):
 
             mypy_args = list(self.config_mypy_args)
             # Prevent horribly breaking users' global environments
-            if mypy_installed_in_prefix and '--install-types' in mypy_args:
+            if mypy_installed_in_prefix and '--install-types' in mypy_args:  # no cov
                 mypy_args.remove('--install-types')
 
             setup_file = os.path.join(temp_dir, 'setup.py')
@@ -322,3 +344,4 @@ class MypycBuildHook(BuildHookInterface):
         build_data['infer_tag'] = True
         build_data['pure_python'] = False
         build_data['artifacts'].extend(self.artifact_patterns)
+        build_data['force_include'].update(self.get_forced_inclusion_map())
