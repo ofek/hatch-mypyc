@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## 0.11.1 - 2022-07-03
+
 ***Fixed:***
 
 - Don't rely on the current working directory being the project root
