@@ -258,7 +258,7 @@ class MypycBuildHook(BuildHookInterface):
             if self.package_source:
                 pattern = os.path.join(self.package_source, pattern)
 
-            for path in iglob(pattern):
+            for path in iglob(os.path.join(self.root, pattern)):
                 inclusion_map[path] = os.path.relpath(path, self.root)
 
         return inclusion_map

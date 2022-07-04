@@ -36,7 +36,7 @@ dependencies = [
   "hatchling>=1.4.0",
   "mypy~=0.961",
   "pathspec",
-  "setuptools>=62.3.4",
+  "setuptools",
 ]
 dynamic = ["version"]
 
