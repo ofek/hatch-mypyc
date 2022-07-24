@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## 0.12.0 - 2022-07-24
+
 ***Added:***
 
 - Bump the minimum supported version of Mypy in order to remove the patch when building with `pip` now that it properly searches `sys.path` for PEP 561 compliant packages
