@@ -8,6 +8,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Added:***
+
+- Bump the minimum supported version of Mypy in order to remove the patch when building with `pip` now that it properly searches `sys.path` for PEP 561 compliant packages
+- Officially support Python 3.11
+- Bump the minimum supported version of Hatchling
+
 ## 0.11.1 - 2022-07-03
 
 ***Fixed:***

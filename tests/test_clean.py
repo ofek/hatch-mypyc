@@ -3,6 +3,8 @@
 # SPDX-License-Identifier: MIT
 import os
 import platform
+import subprocess
+import sys
 from glob import glob
 
 import pytest
@@ -20,12 +22,18 @@ def test():
     assert not glob(shared_lib_pattern)
     assert not glob(lib_pattern)
 
-    build_project('-t', 'wheel')
+    build_project()
 
     assert len(glob(shared_lib_pattern)) == 1
     assert len(glob(lib_pattern)) == 2
 
-    build_project('-t', 'wheel', '--clean-only')
+    process = subprocess.run(
+        [sys.executable, '-m', 'hatchling', 'build', '-t', 'wheel', '--clean-only'],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+    )
+    if process.returncode:  # no cov
+        raise Exception(process.stdout.decode('utf-8'))
 
     assert not glob(shared_lib_pattern)
     assert not glob(lib_pattern)

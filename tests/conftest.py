@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 import os
-import platform
+import sys
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Generator
@@ -12,7 +12,13 @@ import pytest
 
 @pytest.fixture(scope='session')
 def compiled_extension() -> str:
-    return '.pyd' if platform.system() == 'Windows' else '.so'
+    return '.pyd' if sys.platform == 'win32' else '.so'
+
+
+@pytest.fixture(scope='session')
+def project_directory_uri() -> str:
+    leading_slashes = '//' if os.sep == '/' else '///'
+    return f'file:{leading_slashes}{Path.cwd().as_posix()}'
 
 
 @pytest.fixture
@@ -22,7 +28,7 @@ def temp_dir() -> Generator[Path, None, None]:
 
 
 @pytest.fixture
-def new_project(compiled_extension, temp_dir) -> Generator[Path, None, None]:
+def new_project(project_directory_uri, compiled_extension, temp_dir) -> Generator[Path, None, None]:
     project_dir = temp_dir / 'my-app'
     project_dir.mkdir()
 
@@ -31,23 +37,20 @@ def new_project(compiled_extension, temp_dir) -> Generator[Path, None, None]:
 
     project_file = project_dir / 'pyproject.toml'
     project_file.write_text(
-        """\
+        f"""\
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "hatch-mypyc @ {project_directory_uri}"]
 build-backend = "hatchling.build"
 
 [project]
 name = "my-app"
+dependencies = []
 dynamic = ["version"]
 
 [tool.hatch.version]
 path = "my_app/__init__.py"
 
-[tool.hatch.build.targets.wheel]
-packages = ["my_app"]
-
 [tool.hatch.build.targets.wheel.hooks.mypyc]
-dependencies = ["hatch-mypyc"]
 """,
         encoding='utf-8',
     )

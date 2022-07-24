@@ -5,6 +5,7 @@ dependencies = [
   "pytest-cov",
   "pytest-mock",
   "packaging",
+  "build[virtualenv]",
 ]
 [envs.default.scripts]
 cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=hatch_mypyc --cov=tests {args:tests}"

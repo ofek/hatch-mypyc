@@ -33,13 +33,8 @@ setup(
     )
 
 
-def patch_mypy_prefix_module_discovery() -> bool:  # no cov
-    """
-    pip does not use a virtual environment for builds so we need to patch
-    Mypy in order for it to recognize installed build requirements
-    """
-    # pip always sets this, but we cannot merely set MYPYPATH with it b/c we encounter:
-    # https://github.com/python/mypy/issues/10829
+def installed_in_prefix() -> bool:  # no cov
+    # pip always sets this
     python_path = os.environ.get('PYTHONPATH', '')
     if not python_path:
         return False
@@ -61,33 +56,5 @@ def patch_mypy_prefix_module_discovery() -> bool:  # no cov
     wheel_requirements_install_path = os.path.join(temp_build_dir, 'normal', 'lib', 'site-packages')
     if not os.path.isdir(wheel_requirements_install_path):
         return False
-
-    # At this point, assume we are indeed being built by pip and error out if patching fails
-    #
-    # https://github.com/python/mypy/issues/5701#issuecomment-751494692
-    patch_file = os.path.join(wheel_requirements_install_path, 'mypy', 'pyinfo.py')
-    if not os.path.isfile(patch_file):
-        raise OSError('Cannot find Mypy file to patch')
-
-    with open(patch_file, 'r', encoding='utf-8') as f:
-        lines = f.readlines()
-
-    for _patch_start_index, line in enumerate(lines, 1):
-        if line.startswith('def getsitepackages():'):
-            break
-    else:
-        raise ValueError('Cannot apply patch to Mypy file')
-
-    for line in [
-        '    # type: () -> List[str]',
-        '    return sys.path',
-        '',
-        '',
-        'def _get_site_packages():',
-    ][::-1]:
-        lines.insert(_patch_start_index, f'{line}\n')
-
-    with open(patch_file, 'w', encoding='utf-8') as f:
-        f.writelines(lines)
 
     return True
