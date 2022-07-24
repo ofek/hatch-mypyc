@@ -9,7 +9,7 @@ from .utils import build_project
 
 
 def test_no_exclusion(new_project, compiled_extension):
-    build_project()
+    build_project('-t', 'wheel')
 
     build_dir = new_project / 'dist'
     assert build_dir.is_dir()
@@ -73,7 +73,7 @@ if __name__ == '__main__':
         encoding='utf-8',
     )
 
-    build_project()
+    build_project('-t', 'wheel')
 
     build_dir = new_project / 'dist'
     assert build_dir.is_dir()
@@ -127,7 +127,7 @@ def test_separation(new_project):
     contents += '\noptions = { separate = true }'
     project_file.write_text(contents, encoding='utf-8')
 
-    build_project()
+    build_project('-t', 'wheel')
 
     build_dir = new_project / 'dist'
     assert build_dir.is_dir()
@@ -184,7 +184,7 @@ def test_src_layout(new_project, compiled_extension):
     src_dir.mkdir()
     package_dir.replace(src_dir / 'my_app')
 
-    build_project()
+    build_project('-t', 'wheel')
 
     build_dir = new_project / 'dist'
     assert build_dir.is_dir()
