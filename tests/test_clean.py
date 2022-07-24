@@ -20,12 +20,12 @@ def test():
     assert not glob(shared_lib_pattern)
     assert not glob(lib_pattern)
 
-    build_project()
+    build_project('-t', 'wheel')
 
     assert len(glob(shared_lib_pattern)) == 1
     assert len(glob(lib_pattern)) == 2
 
-    build_project('--clean-only')
+    build_project('-t', 'wheel', '--clean-only')
 
     assert not glob(shared_lib_pattern)
     assert not glob(lib_pattern)
