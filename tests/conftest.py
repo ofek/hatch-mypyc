@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 import os
+import shutil
 import sys
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -15,10 +16,10 @@ def compiled_extension() -> str:
     return '.pyd' if sys.platform == 'win32' else '.so'
 
 
-@pytest.fixture(scope='session')
-def project_directory_uri() -> str:
+@pytest.fixture
+def project_directory_uri(temp_dir) -> str:
     leading_slashes = '//' if os.sep == '/' else '///'
-    return f'file:{leading_slashes}{Path.cwd().as_posix()}'
+    return f'file:{leading_slashes}{temp_dir.as_posix()}/plugin'
 
 
 @pytest.fixture
@@ -29,6 +30,7 @@ def temp_dir() -> Generator[Path, None, None]:
 
 @pytest.fixture
 def new_project(project_directory_uri, compiled_extension, temp_dir) -> Generator[Path, None, None]:
+    shutil.copytree(Path.cwd(), temp_dir / 'plugin')
     project_dir = temp_dir / 'my-app'
     project_dir.mkdir()
 
