@@ -30,7 +30,7 @@ def temp_dir() -> Generator[Path, None, None]:
 
 @pytest.fixture
 def new_project(project_directory_uri, compiled_extension, temp_dir) -> Generator[Path, None, None]:
-    shutil.copytree(Path.cwd(), temp_dir / 'plugin')
+    shutil.copytree(Path.cwd(), temp_dir / 'plugin', ignore=shutil.ignore_patterns('.git'))
     project_dir = temp_dir / 'my-app'
     project_dir.mkdir()
 
