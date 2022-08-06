@@ -16,22 +16,18 @@ def compiled_extension() -> str:
     return '.pyd' if sys.platform == 'win32' else '.so'
 
 
-@pytest.fixture
-def project_directory_uri(temp_dir) -> str:
-    leading_slashes = '//' if os.sep == '/' else '///'
-    return f'file:{leading_slashes}{temp_dir.as_posix()}/plugin'
-
-
-@pytest.fixture
-def temp_dir() -> Generator[Path, None, None]:
+@pytest.fixture(scope='session')
+def plugin_dir() -> Generator[Path, None, None]:
     with TemporaryDirectory() as d:
-        yield Path(os.path.realpath(d))
+        directory = Path(d, 'plugin')
+        shutil.copytree(Path.cwd(), directory, ignore=shutil.ignore_patterns('.git'))
+
+        yield directory.resolve()
 
 
 @pytest.fixture
-def new_project(project_directory_uri, compiled_extension, temp_dir) -> Generator[Path, None, None]:
-    shutil.copytree(Path.cwd(), temp_dir / 'plugin', ignore=shutil.ignore_patterns('.git'))
-    project_dir = temp_dir / 'my-app'
+def new_project(plugin_dir, compiled_extension, tmp_path) -> Generator[Path, None, None]:
+    project_dir = tmp_path / 'my-app'
     project_dir.mkdir()
 
     gitignore_file = project_dir / '.gitignore'
@@ -41,7 +37,7 @@ def new_project(project_directory_uri, compiled_extension, temp_dir) -> Generato
     project_file.write_text(
         f"""\
 [build-system]
-requires = ["hatchling", "hatch-mypyc @ {project_directory_uri}"]
+requires = ["hatchling", "hatch-mypyc @ {plugin_dir.as_uri()}"]
 build-backend = "hatchling.build"
 
 [project]
