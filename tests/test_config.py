@@ -1,8 +1,11 @@
 # SPDX-FileCopyrightText: 2021-present Ofek Lev <oss@ofek.dev>
 #
 # SPDX-License-Identifier: MIT
+from os.path import join as pjoin
+
 import pytest
 from hatchling.builders.config import BuilderConfig
+from hatchling.builders.wheel import WheelBuilder
 
 from hatch_mypyc.plugin import MypycBuildHook
 
@@ -132,75 +135,141 @@ class TestExclude:
 
 
 class TestPatternMatching:
-    def test_no_include(self, new_project):
-        build_dir = new_project / 'dist'
-        config = {}
-        target_config = {}
-        build_config = BuilderConfig(None, str(new_project), 'wheel', {}, target_config)
-        build_hook = MypycBuildHook(str(new_project), config, build_config, None, str(build_dir), 'wheel')
+    def test_default_include(self, tmp_path):
+        build_dir = tmp_path / 'dist'
+        config = {
+            'project': {'name': 'my_app', 'version': '0.0.1'},
+            'tool': {
+                'hatch': {
+                    'build': {
+                        'targets': {'wheel': {'include': ['foo'], 'hooks': {'mypyc': {}}}},
+                    },
+                },
+            },
+        }
+        builder = WheelBuilder(str(tmp_path), config=config)
+        build_hook = MypycBuildHook(
+            str(tmp_path),
+            builder.config.hook_config['mypyc'],
+            builder.config,
+            None,
+            str(build_dir),
+            builder.PLUGIN_NAME,
+        )
 
-        with pytest.raises(ValueError, match='Option `include` for build hook `mypyc` is required'):
-            build_hook.include_path('foo/bar.py')
+        foo_dir = tmp_path / 'foo'
+        foo_dir.mkdir()
+        (foo_dir / 'bar.py').touch()
+        (foo_dir / 'baz.py').touch()
 
-    def test_default_include(self, new_project):
-        build_dir = new_project / 'dist'
-        config = {}
-        target_config = {'include': ['foo']}
-        build_config = BuilderConfig(None, str(new_project), 'wheel', {}, target_config)
-        build_hook = MypycBuildHook(str(new_project), config, build_config, None, str(build_dir), 'wheel')
+        bar_dir = tmp_path / 'bar'
+        bar_dir.mkdir()
+        (bar_dir / 'foo.py').touch()
+        (bar_dir / 'baz.py').touch()
 
-        assert build_hook.include_path('foo/bar.py')
-        assert build_hook.include_path('foo/baz.py')
-        assert not build_hook.include_path('bar/foo.py')
-        assert not build_hook.include_path('bar/baz.py')
+        assert build_hook.included_files == [pjoin('foo', 'bar.py'), pjoin('foo', 'baz.py')]
 
-    def test_default_include_packages(self, new_project):
-        build_dir = new_project / 'dist'
-        config = {}
-        target_config = {'packages': ['foo']}
-        build_config = BuilderConfig(None, str(new_project), 'wheel', {}, target_config)
-        build_hook = MypycBuildHook(str(new_project), config, build_config, None, str(build_dir), 'wheel')
+    def test_include(self, tmp_path):
+        build_dir = tmp_path / 'dist'
+        config = {
+            'project': {'name': 'my_app', 'version': '0.0.1'},
+            'tool': {
+                'hatch': {
+                    'build': {
+                        'targets': {'wheel': {'include': ['foo'], 'hooks': {'mypyc': {'include': ['bar', 'baz.py']}}}}
+                    },
+                },
+            },
+        }
+        builder = WheelBuilder(str(tmp_path), config=config)
+        build_hook = MypycBuildHook(
+            str(tmp_path),
+            builder.config.hook_config['mypyc'],
+            builder.config,
+            None,
+            str(build_dir),
+            builder.PLUGIN_NAME,
+        )
 
-        assert build_hook.include_path('foo/bar.py')
-        assert build_hook.include_path('foo/baz.py')
-        assert not build_hook.include_path('bar/foo.py')
-        assert not build_hook.include_path('bar/baz.py')
+        foo_dir = tmp_path / 'foo'
+        foo_dir.mkdir()
+        (foo_dir / 'bar.py').touch()
+        (foo_dir / 'baz.py').touch()
 
-    def test_include(self, new_project):
-        build_dir = new_project / 'dist'
-        config = {'include': ['bar']}
-        target_config = {'include': ['foo']}
-        build_config = BuilderConfig(None, str(new_project), 'wheel', {}, target_config)
-        build_hook = MypycBuildHook(str(new_project), config, build_config, None, str(build_dir), 'wheel')
+        bar_dir = tmp_path / 'bar'
+        bar_dir.mkdir()
+        (bar_dir / 'foo.py').touch()
+        (bar_dir / 'baz.py').touch()
 
-        assert not build_hook.include_path('foo/bar.py')
-        assert not build_hook.include_path('foo/baz.py')
-        assert build_hook.include_path('bar/foo.py')
-        assert build_hook.include_path('bar/baz.py')
+        assert build_hook.included_files == [pjoin('foo', 'baz.py')]
 
-    def test_default_exclude(self, new_project):
-        build_dir = new_project / 'dist'
-        config = {'include': ['bar']}
-        target_config = {'include': ['foo'], 'exclude': ['foo.py']}
-        build_config = BuilderConfig(None, str(new_project), 'wheel', {}, target_config)
-        build_hook = MypycBuildHook(str(new_project), config, build_config, None, str(build_dir), 'wheel')
+    def test_default_exclude(self, tmp_path):
+        build_dir = tmp_path / 'dist'
+        config = {
+            'project': {'name': 'my_app', 'version': '0.0.1'},
+            'tool': {
+                'hatch': {
+                    'build': {
+                        'targets': {'wheel': {'exclude': ['foo'], 'hooks': {'mypyc': {}}}},
+                    },
+                },
+            },
+        }
+        builder = WheelBuilder(str(tmp_path), config=config)
+        build_hook = MypycBuildHook(
+            str(tmp_path),
+            builder.config.hook_config['mypyc'],
+            builder.config,
+            None,
+            str(build_dir),
+            builder.PLUGIN_NAME,
+        )
 
-        assert not build_hook.include_path('foo/bar.py')
-        assert not build_hook.include_path('foo/baz.py')
-        assert not build_hook.include_path('bar/foo.py')
-        assert build_hook.include_path('bar/baz.py')
+        foo_dir = tmp_path / 'foo'
+        foo_dir.mkdir()
+        (foo_dir / 'bar.py').touch()
+        (foo_dir / 'baz.py').touch()
 
-    def test_exclude(self, new_project):
-        build_dir = new_project / 'dist'
-        config = {'include': ['bar'], 'exclude': ['baz.py']}
-        target_config = {'include': ['foo'], 'exclude': ['foo.py']}
-        build_config = BuilderConfig(None, str(new_project), 'wheel', {}, target_config)
-        build_hook = MypycBuildHook(str(new_project), config, build_config, None, str(build_dir), 'wheel')
+        bar_dir = tmp_path / 'bar'
+        bar_dir.mkdir()
+        (bar_dir / 'foo.py').touch()
+        (bar_dir / 'baz.py').touch()
 
-        assert not build_hook.include_path('foo/bar.py')
-        assert not build_hook.include_path('foo/baz.py')
-        assert build_hook.include_path('bar/foo.py')
-        assert not build_hook.include_path('bar/baz.py')
+        assert build_hook.included_files == [pjoin('bar', 'baz.py'), pjoin('bar', 'foo.py')]
+
+    def test_exclude(self, tmp_path):
+        build_dir = tmp_path / 'dist'
+        config = {
+            'project': {'name': 'my_app', 'version': '0.0.1'},
+            'tool': {
+                'hatch': {
+                    'build': {
+                        'targets': {'wheel': {'exclude': ['foo'], 'hooks': {'mypyc': {'exclude': ['baz.py']}}}},
+                    },
+                },
+            },
+        }
+        builder = WheelBuilder(str(tmp_path), config=config)
+        build_hook = MypycBuildHook(
+            str(tmp_path),
+            builder.config.hook_config['mypyc'],
+            builder.config,
+            None,
+            str(build_dir),
+            builder.PLUGIN_NAME,
+        )
+
+        foo_dir = tmp_path / 'foo'
+        foo_dir.mkdir()
+        (foo_dir / 'bar.py').touch()
+        (foo_dir / 'baz.py').touch()
+
+        bar_dir = tmp_path / 'bar'
+        bar_dir.mkdir()
+        (bar_dir / 'foo.py').touch()
+        (bar_dir / 'baz.py').touch()
+
+        assert build_hook.included_files == [pjoin('bar', 'foo.py')]
 
 
 class TestPackageSource:
@@ -224,8 +293,25 @@ class TestPackageSource:
 
 
 def test_coverage(new_project):
-    build_config = BuilderConfig(None, str(new_project), 'wheel', {}, {'include': ['foo']})
-    build_hook = MypycBuildHook(str(new_project), {}, build_config, None, str(new_project / 'dist'), 'wheel')
+    config = {
+        'project': {'name': 'my_app', 'version': '0.0.1'},
+        'tool': {
+            'hatch': {
+                'build': {
+                    'targets': {'wheel': {'hooks': {'mypyc': {}}}},
+                },
+            },
+        },
+    }
+    builder = WheelBuilder(str(new_project), config=config)
+    build_hook = MypycBuildHook(
+        str(new_project),
+        builder.config.hook_config['mypyc'],
+        builder.config,
+        None,
+        str(new_project / 'dist'),
+        builder.PLUGIN_NAME,
+    )
 
     assert build_hook.config_mypy_args is build_hook.config_mypy_args
     assert build_hook.config_options is build_hook.config_options

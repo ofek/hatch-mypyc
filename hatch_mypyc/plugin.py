@@ -140,32 +140,30 @@ class MypycBuildHook(BuildHookInterface):
 
     @property
     def include_spec(self):
-        if self.__include_spec is None:
-            if self.config_include:
-                self.__include_spec = pathspec.PathSpec.from_lines(
-                    pathspec.patterns.GitWildMatchPattern, self.config_include
-                )
-            elif self.build_config.include_spec is not None:
-                self.__include_spec = self.build_config.include_spec
-            else:
-                raise ValueError(f'Option `include` for build hook `{self.PLUGIN_NAME}` is required')
+        if self.__config_include is None and self.config_include:
+            self.__include_spec = pathspec.PathSpec.from_lines(
+                pathspec.patterns.GitWildMatchPattern, self.config_include
+            )
 
         return self.__include_spec
 
     @property
     def exclude_spec(self):
-        if self.__exclude_spec is None:
-            if self.config_exclude:
-                self.__exclude_spec = pathspec.PathSpec.from_lines(
-                    pathspec.patterns.GitWildMatchPattern, self.config_exclude
-                )
-            else:
-                self.__exclude_spec = self.build_config.exclude_spec
+        if self.__exclude_spec is None and self.config_exclude:
+            self.__exclude_spec = pathspec.PathSpec.from_lines(
+                pathspec.patterns.GitWildMatchPattern, self.config_exclude
+            )
 
         return self.__exclude_spec
 
     def include_path(self, relative_path):
-        return self.include_spec.match_file(relative_path) and not self.path_is_excluded(relative_path)
+        return self.path_is_included(relative_path) and not self.path_is_excluded(relative_path)
+
+    def path_is_included(self, relative_path):
+        if self.include_spec is None:  # no cov
+            return True
+
+        return self.include_spec.match_file(relative_path)
 
     def path_is_excluded(self, relative_path):
         if self.exclude_spec is None:  # no cov
@@ -178,27 +176,10 @@ class MypycBuildHook(BuildHookInterface):
         if self.__included_files is None:
             included_files = []
 
-            for root, dirs, files in os.walk(self.root):
-                relative_path = os.path.relpath(root, self.root)
-
-                # First iteration
-                if relative_path == '.':
-                    relative_path = ''
-
-                dirs[:] = sorted(
-                    d
-                    for d in dirs
-                    # The trailing slash is necessary so e.g. `bar/` matches `foo/bar`
-                    if not self.path_is_excluded('{}/'.format(os.path.join(relative_path, d)))
-                )
-
-                for f in sorted(files):
-                    if not f.endswith('.py'):
-                        continue
-
-                    relative_file_path = os.path.join(relative_path, f)
-                    if self.include_path(relative_file_path):
-                        included_files.append(relative_file_path)
+            for included_file in self.build_config.builder.recurse_included_files():
+                relative_path = included_file.relative_path
+                if relative_path.endswith('.py') and self.include_path(relative_path):
+                    included_files.append(relative_path)
 
             self.__included_files = included_files
 

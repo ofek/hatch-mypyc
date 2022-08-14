@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling>=1.6.0"]
+requires = ["hatchling>=1.7.1"]
 build-backend = "hatchling.build"
 
 [project]
@@ -34,7 +34,7 @@ classifiers = [
   "Topic :: Software Development :: Build Tools",
 ]
 dependencies = [
-  "hatchling>=1.6.0",
+  "hatchling>=1.7.1",
   "mypy~=0.971",
   "pathspec",
   "setuptools",

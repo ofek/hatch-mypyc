@@ -39,15 +39,13 @@ The [build hook plugin](https://hatch.pypa.io/latest/plugins/build-hook/) name i
 
 ### File selection
 
-By default, the [standard file selection options](https://hatch.pypa.io/latest/config/build/#file-selection) will be used. You can override this behavior with the `include`/`exclude` options.
+By default, all files included using the [standard file selection options](https://hatch.pypa.io/latest/config/build/#file-selection) with a `.py` extension will be targeted. You can narrow what files to compile to an even smaller subset with the `include`/`exclude` options, which represent [Git-style glob patterns](https://git-scm.com/docs/gitignore#_pattern_format).
 
 ```toml
 [build.targets.wheel.hooks.mypyc]
-include = ["/pkg"]
+include = ["/src/pkg/server"]
 exclude = ["__main__.py"]
 ```
-
-At least one inclusion pattern must be provided overall.
 
 ### Mypy arguments
 
@@ -79,6 +77,7 @@ If you need more packages at build time in order to successfully type check, you
 
 - `dependencies` - add more dependencies alongside `hatch-mypyc`
 - `require-runtime-dependencies` - set to `true` to include dependencies defined in the `project.dependencies` array
+- `require-runtime-features` - set to an array of named dependency groups that are defined in `project.optional-dependencies`
 
 ## License
 
