@@ -8,6 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Changed:***
+
+- The `include`/`exclude` options are now applied after the standard file selection options rather than used as overrides
+
+***Added:***
+
+- Bump the minimum supported version of Hatchling
+
 ## 0.12.0 - 2022-07-24
 
 ***Added:***
