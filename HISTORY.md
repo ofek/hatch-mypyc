@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Added:***
+
+- Add `build-dir` option to persist intermediate artifacts
+
 ## 0.13.0 - 2022-08-14
 
 ***Changed:***
