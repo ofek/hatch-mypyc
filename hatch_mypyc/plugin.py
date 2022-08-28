@@ -25,6 +25,7 @@ class MypycBuildHook(BuildHookInterface):
         self.__config_mypy_args = None
         self.__config_options = None
         self.__config_separation = None
+        self.__config_build_dir = None
         self.__config_include = None
         self.__config_exclude = None
         self.__package_source = None
@@ -82,6 +83,17 @@ class MypycBuildHook(BuildHookInterface):
             self.__config_separation = self.config_options.get('separate', False) is not False
 
         return self.__config_separation
+
+    @property
+    def config_build_dir(self):
+        if self.__config_build_dir is None:
+            build_dir = os.environ.get('HATCH_MYPYC_BUILD_DIR', self.config_options.get('build-dir', ''))
+            if build_dir and not os.path.isabs(build_dir):
+                build_dir = os.path.join(self.root, build_dir)
+
+            self.__config_build_dir = build_dir
+
+        return self.__config_build_dir
 
     @property
     def config_include(self):
@@ -267,18 +279,25 @@ class MypycBuildHook(BuildHookInterface):
         finally:
             os.replace(project_file_backup, project_file)
 
+    @contextmanager
+    def get_build_dirs(self):
+        with TemporaryDirectory() as temp_dir:
+            temp_dir = os.path.realpath(temp_dir)
+            if self.config_build_dir:
+                yield self.config_build_dir, temp_dir
+            # Prevent temporary files from being written inside the project by both Mypy and setuptools
+            else:
+                yield temp_dir, temp_dir
+
     def initialize(self, version, build_data):
         if self.target_name != 'wheel':
             return
 
         # Hopefully there will be an API for this soon:
         # https://github.com/python/mypy/blob/v0.961/mypyc/__main__.py
-        with TemporaryDirectory() as temp_dir:
-            temp_dir = os.path.realpath(temp_dir)
-
-            # Prevent temporary files from being written inside the project by both Mypy and setuptools
-            shared_temp_build_dir = os.path.join(temp_dir, 'build')
-            temp_build_dir = os.path.join(temp_dir, 'tmp')
+        with self.get_build_dirs() as (intermediate_build_dir, temp_dir):
+            shared_temp_build_dir = os.path.join(intermediate_build_dir, 'build')
+            temp_build_dir = os.path.join(intermediate_build_dir, 'tmp')
             os.mkdir(shared_temp_build_dir)
             os.mkdir(temp_build_dir)
 
