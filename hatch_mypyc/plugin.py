@@ -13,7 +13,7 @@ from tempfile import TemporaryDirectory
 import pathspec
 from hatchling.builders.hooks.plugin.interface import BuildHookInterface
 
-from .utils import construct_setup_file, installed_in_prefix
+from hatch_mypyc.utils import construct_setup_file, installed_in_prefix
 
 
 class MypycBuildHook(BuildHookInterface):
