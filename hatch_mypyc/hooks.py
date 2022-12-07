@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 from hatchling.plugin import hookimpl
 
-from .plugin import MypycBuildHook
+from hatch_mypyc.plugin import MypycBuildHook
 
 
 @hookimpl

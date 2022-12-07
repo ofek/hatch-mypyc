@@ -1,36 +1,42 @@
 [envs.default]
 dependencies = [
-  "coverage[toml]>=6.2",
+  "coverage[toml]>=6.5",
   "pytest",
-  "pytest-cov",
   "pytest-mock",
   "packaging",
   "build[virtualenv]",
 ]
 [envs.default.scripts]
-cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=hatch_mypyc --cov=tests {args:tests}"
-no-cov = "pytest --no-cov {args:tests}"
+test = "pytest {args:tests}"
+test-cov = "coverage run -m pytest {args:tests}"
+cov-report = [
+  "- coverage combine",
+  "coverage report --show-missing",
+]
+cov = [
+  "test-cov",
+  "cov-report",
+]
+
+[[envs.all.matrix]]
+python = ["3.7", "3.8", "3.9", "3.10", "3.11"]
 
 [envs.lint]
 detached = true
 dependencies = [
-  "flake8>=4.0.1",
-  "flake8-bugbear>=22.3.23",
-  "flake8-quotes>=3.3.1",
-  "black>=22.3.0",
-  "isort>=5.10.1",
-  "mypy>=0.942",
+  "black>=22.10.0",
+  "mypy>=0.991",
+  "ruff>=0.0.166",
 ]
 [envs.lint.scripts]
 typing = "mypy --install-types --non-interactive {args:hatch_mypyc tests}"
 style = [
-  "flake8 {args:.}",
+  "ruff {args:.}",
   "black --check --diff {args:.}",
-  "isort --check-only --diff {args:.}",
 ]
 fmt = [
-  "isort {args:.}",
   "black {args:.}",
+  "ruff --fix {args:.}",
   "style",
 ]
 all = [
