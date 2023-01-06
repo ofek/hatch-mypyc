@@ -48,6 +48,9 @@ dynamic = ["version"]
 [tool.hatch.version]
 path = "my_app/__init__.py"
 
+[tool.hatch.build.targets.wheel]
+macos-max-compat = false
+
 [tool.hatch.build.targets.wheel.hooks.mypyc]
 """,
         encoding='utf-8',
