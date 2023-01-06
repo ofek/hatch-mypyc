@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling>=1.7.1"]
+requires = ["hatchling>=1.12.2"]
 build-backend = "hatchling.build"
 
 [project]
@@ -34,9 +34,8 @@ classifiers = [
   "Topic :: Software Development :: Build Tools",
 ]
 dependencies = [
-  "hatchling>=1.7.1",
+  "hatchling>=1.12.2",
   "mypy~=0.971",
-  "packaging!=22.0",
   "pathspec",
   "setuptools",
 ]
@@ -105,7 +104,7 @@ ban-relative-imports = "all"
 
 [tool.ruff.per-file-ignores]
 # Tests can use relative imports and assertions
-"tests/**/*" = ["I252", "S101"]
+"tests/**/*" = ["TID252", "S101"]
 
 [tool.mypy]
 disallow_untyped_defs = false
