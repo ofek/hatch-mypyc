@@ -8,6 +8,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## 0.15.0 - 2023-01-06
+
+***Added:***
+
+- Bump the minimum supported version of Hatchling for a more robust macOS fix
+
 ## 0.14.1 - 2022-12-29
 
 ***Fixed:***
