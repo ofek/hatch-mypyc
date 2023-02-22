@@ -35,7 +35,7 @@ classifiers = [
 ]
 dependencies = [
   "hatchling>=1.12.2",
-  "mypy~=0.971",
+  "mypy>=0.971",
   "pathspec",
   "setuptools",
 ]
