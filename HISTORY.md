@@ -8,6 +8,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## 0.16.0 - 2023-02-22
+
+***Added:***
+
+- Allow the latest major release of Mypy
+
 ## 0.15.0 - 2023-01-06
 
 ***Added:***
