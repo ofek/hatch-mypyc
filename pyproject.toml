@@ -89,6 +89,8 @@ ignore = [
   "FBT003",
   # Ignore checks for possible passwords
   "S105", "S106", "S107",
+  # Ignore false-positive subprocess check (https://github.com/astral-sh/ruff/issues/4045)
+  "S603",
 ]
 unfixable = [
   # Don't touch unused imports
