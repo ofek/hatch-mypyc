@@ -26,17 +26,17 @@ detached = true
 dependencies = [
   "black>=22.10.0",
   "mypy>=0.991",
-  "ruff>=0.0.166",
+  "ruff>=0.5",
 ]
 [envs.lint.scripts]
 typing = "mypy --install-types --non-interactive {args:hatch_mypyc tests}"
 style = [
-  "ruff {args:.}",
+  "ruff check {args:.}",
   "black --check --diff {args:.}",
 ]
 fmt = [
   "black {args:.}",
-  "ruff --fix {args:.}",
+  "ruff format {args:.}",
   "style",
 ]
 all = [
