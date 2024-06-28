@@ -144,7 +144,7 @@ class MypycBuildHook(BuildHookInterface):
         if self.__package_source is None:
             if self.build_config.sources:
                 # Just support one source for now
-                self.__package_source = list(self.build_config.sources)[0][:-1]
+                self.__package_source = next(iter(self.build_config.sources))[:-1]
             else:
                 self.__package_source = ''
 
