@@ -8,6 +8,8 @@ from packaging.tags import sys_tags
 
 from .utils import build_project
 
+best_matching_tag = next(iter(t for t in sys_tags() if 'manylinux' not in t.platform and 'musllinux' not in t.platform))
+
 
 def test_target_not_wheel(new_project):
     project_file = new_project / 'pyproject.toml'
@@ -36,7 +38,6 @@ def test_no_exclusion(new_project, compiled_extension):
     assert len(artifacts) == 1
     wheel_file = artifacts[0]
 
-    best_matching_tag = next(sys_tags())
     assert wheel_file.name == f'my_app-1.2.3-{best_matching_tag}.whl'
 
     extraction_directory = new_project.parent / '_archive'
@@ -100,7 +101,6 @@ if __name__ == '__main__':
     assert len(artifacts) == 1
     wheel_file = artifacts[0]
 
-    best_matching_tag = next(sys_tags())
     assert wheel_file.name == f'my_app-1.2.3-{best_matching_tag}.whl'
 
     extraction_directory = new_project.parent / '_archive'
@@ -154,7 +154,6 @@ def test_separation(new_project):
     assert len(artifacts) == 1
     wheel_file = artifacts[0]
 
-    best_matching_tag = next(sys_tags())
     assert wheel_file.name == f'my_app-1.2.3-{best_matching_tag}.whl'
 
     extraction_directory = new_project.parent / '_archive'
@@ -211,7 +210,6 @@ def test_src_layout(new_project, compiled_extension):
     assert len(artifacts) == 1
     wheel_file = artifacts[0]
 
-    best_matching_tag = next(sys_tags())
     assert wheel_file.name == f'my_app-1.2.3-{best_matching_tag}.whl'
 
     extraction_directory = new_project.parent / '_archive'
@@ -278,7 +276,6 @@ import {dependency}
     assert len(artifacts) == 1
     wheel_file = artifacts[0]
 
-    best_matching_tag = next(sys_tags())
     assert wheel_file.name == f'my_app-1.2.3-{best_matching_tag}.whl'
 
     extraction_directory = new_project.parent / '_archive'
@@ -334,7 +331,6 @@ def test_build_dir(new_project, compiled_extension):
     assert len(artifacts) == 1
     wheel_file = artifacts[0]
 
-    best_matching_tag = next(sys_tags())
     assert wheel_file.name == f'my_app-1.2.3-{best_matching_tag}.whl'
 
     extraction_directory = new_project.parent / '_archive'

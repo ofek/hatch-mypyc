@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "hatch-mypyc"
 description = "Hatch build hook plugin for Mypyc"
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 license = "MIT"
 keywords = [
   "build",
@@ -24,11 +24,11 @@ classifiers = [
   "Framework :: Hatch",
   "License :: OSI Approved :: MIT License",
   "Programming Language :: Python",
-  "Programming Language :: Python :: 3.7",
   "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
   "Topic :: Software Development :: Build Tools",
@@ -61,6 +61,8 @@ skip-string-normalization = true
 [tool.ruff]
 target-version = "py37"
 line-length = 120
+
+[tool.ruff.lint]
 select = [
   "A",
   "B",
@@ -87,22 +89,24 @@ ignore = [
   "FBT003",
   # Ignore checks for possible passwords
   "S105", "S106", "S107",
+  # Ignore false-positive subprocess check (https://github.com/astral-sh/ruff/issues/4045)
+  "S603",
 ]
 unfixable = [
   # Don't touch unused imports
   "F401",
 ]
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 known-first-party = ["hatch_mypyc"]
 
-[tool.ruff.flake8-quotes]
+[tool.ruff.lint.flake8-quotes]
 inline-quotes = "single"
 
-[tool.ruff.flake8-tidy-imports]
+[tool.ruff.lint.flake8-tidy-imports]
 ban-relative-imports = "all"
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 # Tests can use relative imports and assertions
 "tests/**/*" = ["TID252", "S101"]
 

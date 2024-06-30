@@ -210,7 +210,13 @@ class TestPatternMatching:
             'tool': {
                 'hatch': {
                     'build': {
-                        'targets': {'wheel': {'exclude': ['foo'], 'hooks': {'mypyc': {}}}},
+                        'targets': {
+                            'wheel': {
+                                'exclude': ['foo'],
+                                'hooks': {'mypyc': {}},
+                                'include': ['bar'],
+                            },
+                        },
                     },
                 },
             },
@@ -244,7 +250,13 @@ class TestPatternMatching:
             'tool': {
                 'hatch': {
                     'build': {
-                        'targets': {'wheel': {'exclude': ['foo'], 'hooks': {'mypyc': {'exclude': ['baz.py']}}}},
+                        'targets': {
+                            'wheel': {
+                                'exclude': ['foo'],
+                                'hooks': {'mypyc': {'exclude': ['baz.py']}},
+                                'include': ['bar'],
+                            }
+                        },
                     },
                 },
             },
